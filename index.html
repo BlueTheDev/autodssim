@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AutoDSEmulator</title>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--tx:#1b2438;--mut:#6b7590;--line:#e3e7f1;--pri:#2b5cff;--pri2:#e8eeff;--ok:#12a066;--warn:#e69b00;--bad:#e03e4e;--side:#101936}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1224;--card:#161d36;--tx:#e8ecf8;--mut:#92a0c4;--line:#27304f;--pri2:#1c2a5c;--side:#0a0f20}}
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{font:14px/1.5 "Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;background:var(--bg);color:var(--tx)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
+.hide{display:none!important}
+.btn{background:var(--pri);color:#fff;border:0;border-radius:8px;padding:8px 14px;cursor:pointer;font-weight:600}
+.btn:hover{filter:brightness(1.1)}.btn.sec{background:var(--pri2);color:var(--pri)}.btn.ghost{background:none;border:1px solid var(--line);color:var(--tx)}.btn.sm{padding:5px 10px;font-size:12.5px}
+input,select,textarea{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%}
+label{display:block;font-weight:600;margin:12px 0 4px;font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px}
+/* Login */
+#login{min-height:100%;display:grid;grid-template-columns:1.1fr 1fr}
+.hero{background:linear-gradient(160deg,#16275f,#2b5cff);color:#fff;padding:60px;display:flex;flex-direction:column;justify-content:center}
+.hero h1{font-size:40px;line-height:1.15;margin:0 0 14px;max-width:14em}.hero p{opacity:.85;max-width:30em}
+.lbox{display:flex;align-items:center;justify-content:center;padding:30px}.lbox form{width:100%;max-width:360px}
+.logo{font-weight:800;font-size:20px;letter-spacing:-.3px}.logo b{color:var(--pri)}
+/* App */
+#app{display:grid;grid-template-columns:230px 1fr;min-height:100%}
+aside{background:var(--side);color:#c9d3f5;padding:18px 12px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:4px}
+aside .logo{color:#fff;padding:4px 10px 16px}aside .logo b{color:#6e93ff}
+aside a{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:8px;cursor:pointer;color:inherit;text-decoration:none}
+aside a:hover{background:#ffffff14}aside a.on{background:var(--pri);color:#fff}
+.plan{margin-top:auto;background:#ffffff12;border-radius:10px;padding:12px;font-size:12.5px}
+main{padding:24px 28px;min-width:0}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:12px;flex-wrap:wrap}
+h2{margin:0;font-size:22px}h3{margin:0 0 10px;font-size:16px}
+.grid{display:grid;gap:14px}.g4{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}.g3{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}.g2{grid-template-columns:2fr 1fr}
+.stat .v{font-size:26px;font-weight:700}.stat .d{font-size:12.5px;color:var(--ok)}.stat .l{color:var(--mut)}
+.bars{display:flex;align-items:flex-end;gap:10px;height:160px}.bars div{flex:1;background:var(--pri);border-radius:5px 5px 0 0;position:relative;min-height:4px}
+.bars div span{position:absolute;bottom:-20px;left:0;right:0;text-align:center;font-size:11px;color:var(--mut)}
+.pcard{display:flex;flex-direction:column;gap:8px}
+.pimg{height:110px;border-radius:10px;background:var(--pri2);display:grid;place-items:center;font-size:54px}
+.tag{display:inline-block;background:var(--pri2);color:var(--pri);border-radius:20px;padding:1px 9px;font-size:12px;font-weight:600}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.sp{justify-content:space-between}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line)}th{color:var(--mut);font-weight:600;font-size:12.5px}
+.tt{display:grid;grid-template-columns:repeat(auto-fill,minmax(325px,1fr));gap:14px;margin-top:12px}
+.tt .e{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;overflow:hidden}
+.tt blockquote{margin:0!important}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:12px;flex-wrap:wrap}
+.tabs button{background:none;border:0;padding:9px 12px;cursor:pointer;color:var(--mut);border-bottom:2px solid transparent}.tabs .on{color:var(--pri);border-color:var(--pri);font-weight:600}
+.sw{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.sw input{width:auto}
+.modal{position:fixed;inset:0;background:#0009;display:grid;place-items:center;padding:16px;z-index:9}
+.modal .card{max-width:520px;width:100%;max-height:92vh;overflow:auto}
+.ring{width:130px;height:130px;border-radius:50%;display:grid;place-items:center;margin:auto}
+.ring div{width:100px;height:100px;border-radius:50%;background:var(--card);display:grid;place-items:center;font-size:32px;font-weight:800}
+.meter{height:8px;background:var(--line);border-radius:5px;overflow:hidden}.meter i{display:block;height:100%;background:var(--pri)}
+iframe{width:100%;height:520px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--tx);color:var(--bg);padding:10px 16px;border-radius:8px;z-index:20}
+@media(max-width:820px){#login{grid-template-columns:1fr}.hero{display:none}#app{grid-template-columns:1fr}aside{position:static;height:auto;flex-direction:row;flex-wrap:wrap}.plan{display:none}.g2{grid-template-columns:1fr}main{padding:16px}}
+</style>
+</head>
+<body>
+
+<section id="login">
+  <div class="hero">
+    <div class="logo" style="font-size:24px;margin-bottom:30px">AutoDS<b style="color:#9db6ff">Emulator</b></div>
+    <h1>Finde Gewinnerprodukte, bevor sie viral gehen.</h1>
+    <p>Recherchiere TikTok-Trends, bewerte Produkte mit dem Product Score und erstelle in Sekunden eine Shop-Seite.</p>
+  </div>
+  <div class="lbox">
+    <form id="lf">
+      <div class="logo">AutoDS<b>Emulator</b></div>
+      <h2 style="margin:14px 0 4px">Anmelden</h2>
+      <div style="color:var(--mut)">Demo-Login: Jede Eingabe funktioniert.</div>
+      <label for="em">E-Mail</label><input id="em" type="email" placeholder="du@beispiel.de" required>
+      <label for="pw">Passwort</label><input id="pw" type="password" placeholder="••••••••" required>
+      <button class="btn" style="width:100%;margin-top:18px">Anmelden</button>
+    </form>
+  </div>
+</section>
+
+<div id="app" class="hide">
+  <aside>
+    <div class="logo">AutoDS<b>Emulator</b></div>
+    <a data-p="dash" class="on">📊 Dashboard</a>
+    <a data-p="res">🔎 Produktrecherche</a>
+    <a data-p="saved">💾 Gespeicherte Produkte</a>
+    <a data-p="gen">🌐 Website-Generator</a>
+    <a data-p="set">⚙️ Einstellungen</a>
+    <a id="out">🚪 Abmelden</a>
+    <div class="plan"><b>Plan: Pro (Demo)</b><br>Produkte: <span id="plc">0</span> / 1000</div>
+  </aside>
+  <main id="view"></main>
+</div>
+<div id="modal" class="modal hide"></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const PRODUCTS=[
+ {id:1,e:'🧴',n:'LED-Gesichtsmaske',cat:'Beauty',cost:14.2,price:49.9,trend:88,comp:62,ship:9,views:'48M'},
+ {id:2,e:'🧊',n:'Eiswürfel-Gesichtsroller',cat:'Beauty',cost:3.1,price:19.9,trend:74,comp:55,ship:8,views:'12M'},
+ {id:3,e:'🧹',n:'Elektrische Drehbürste',cat:'Haushalt',cost:11.8,price:39.9,trend:81,comp:70,ship:10,views:'31M'},
+ {id:4,e:'🐶',n:'Haustier-Haarentferner',cat:'Haustiere',cost:2.4,price:16.9,trend:69,comp:48,ship:7,views:'9M'},
+ {id:5,e:'💡',n:'Sonnenuntergang-Lampe',cat:'Deko',cost:4.9,price:24.9,trend:92,comp:80,ship:9,views:'86M'},
+ {id:6,e:'🎒',n:'Magnetische Handyhalterung',cat:'Gadgets',cost:2.8,price:17.9,trend:58,comp:85,ship:6,views:'5M'},
+ {id:7,e:'🍳',n:'Mini-Waffeleisen',cat:'Küche',cost:6.7,price:26.9,trend:77,comp:44,ship:11,views:'19M'},
+ {id:8,e:'🌱',n:'Smarter Kräutergarten',cat:'Garten',cost:18.5,price:59.9,trend:71,comp:35,ship:12,views:'7M'}
+];
+const L=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}};
+const S=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+let st={saved:L('ade_saved',[]),vids:L('ade_vids',[]),set:L('ade_set',{name:'Max Mustermann',email:'',store:'',cur:'EUR',markup:150,round:true,ai:'pollinations',aiUrl:'',aiKey:'',aiModel:'',notif:{stock:true,price:true,trend:false},lang:'Deutsch'}),page:'dash',tab:'Profil',gen:{html:'',pid:1}};
+const save=()=>{S('ade_saved',st.saved);S('ade_vids',st.vids);S('ade_set',st.set);$('#plc').textContent=st.saved.length};
+const eur=n=>n.toLocaleString('de-DE',{style:'currency',currency:'EUR'});
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.append(d);setTimeout(()=>d.remove(),2200)}
+
+/* Product Score */
+function score(p){
+ const m=(p.price-p.cost)/p.price*100;
+ const f=[['Gewinnmarge',Math.min(100,m*1.3),.30,`${m.toFixed(0)} % Marge (${eur(p.price-p.cost)} Gewinn)`],
+  ['Trend / TikTok-Reichweite',p.trend,.25,`${p.views} Views, Trendwert ${p.trend}`],
+  ['Wettbewerb (niedrig = gut)',100-p.comp,.20,`Konkurrenzdichte ${p.comp}/100`],
+  ['Viralität',Math.min(100,p.trend*.6+(parseInt(p.views)||0)*.5),.15,'Aus Views und Trend berechnet'],
+  ['Lieferzeit',Math.max(0,100-(p.ship-5)*8),.10,`ca. ${p.ship} Tage`]];
+ const total=Math.round(f.reduce((a,x)=>a+x[1]*x[2],0));
+ return{total,f,label:total>=75?'Gewinnerprodukt':total>=60?'Vielversprechend':'Riskant'};
+}
+const col=n=>n>=75?'var(--ok)':n>=60?'var(--warn)':'var(--bad)';
+const sellP=p=>{let v=p.cost*st.set.markup/100;if(st.set.round)v=Math.ceil(v)-.1;return Math.max(v,p.price*.0+1)};
+
+/* Navigation */
+document.querySelectorAll('aside a[data-p]').forEach(a=>a.onclick=()=>go(a.dataset.p));
+function go(p){st.page=p;document.querySelectorAll('aside a[data-p]').forEach(a=>a.classList.toggle('on',a.dataset.p===p));render()}
+function render(){({dash,res,saved,gen,set}[st.page])();save()}
+
+$('#lf').onsubmit=e=>{e.preventDefault();S('ade_in',1);enter()};
+$('#out').onclick=()=>{S('ade_in',0);$('#app').classList.add('hide');$('#login').classList.remove('hide')};
+function enter(){$('#login').classList.add('hide');$('#app').classList.remove('hide');go('dash')}
+
+/* Dashboard */
+function dash(){
+ const sv=st.saved.map(id=>PRODUCTS.find(p=>p.id===id)).filter(Boolean);
+ const prof=sv.reduce((a,p)=>a+(p.price-p.cost)*12,0);
+ const months=['Mai','Jun','Jul','Aug','Sep','Okt'],vals=[22,35,41,58,64,88];
+ $('#view').innerHTML=`<div class="top"><h2>Willkommen, ${esc(st.set.name.split(' ')[0])} 👋</h2><button class="btn" onclick="go('res')">Neue Produkte finden</button></div>
+ <div class="grid g4">
+ ${[['Gespeicherte Produkte',sv.length,'+3 diese Woche'],['Ø Product Score',sv.length?Math.round(sv.reduce((a,p)=>a+score(p).total,0)/sv.length):'–','Basierend auf deiner Liste'],['Prognost. Gewinn / Monat',eur(prof),'bei 12 Verkäufen je Produkt'],['Generierte Shops',L('ade_shops',0),'Mit KI erstellt']].map(s=>`<div class="card stat"><div class="l">${s[0]}</div><div class="v">${s[1]}</div><div class="d">${s[2]}</div></div>`).join('')}</div>
+ <div class="grid g2" style="margin-top:14px">
+ <div class="card"><h3>Trendvolumen „TikTok made me buy it“ (Index)</h3><div class="bars" style="padding-bottom:22px">${vals.map((v,i)=>`<div style="height:${v}%"><span>${months[i]}</span></div>`).join('')}</div></div>
+ <div class="card"><h3>Top-Trends</h3>${[...PRODUCTS].sort((a,b)=>b.trend-a.trend).slice(0,5).map(p=>`<div class="row sp" style="padding:6px 0"><span>${p.e} ${p.n}</span><span class="tag">${p.trend}</span></div>`).join('')}</div></div>`;
+}
+
+/* Recherche */
+function res(){
+ $('#view').innerHTML=`<div class="top"><h2>Produktrecherche</h2></div>
+ <div class="card"><h3>TikTok-Recherche</h3>
+ <div class="row"><input id="q" value="TikTok made me buy it" style="flex:1;min-width:200px"><button class="btn" id="ts">Auf TikTok suchen</button></div>
+ <label for="vu">TikTok-Video-Link hinzufügen (wird über die Embed-API eingebettet)</label>
+ <div class="row"><input id="vu" placeholder="https://www.tiktok.com/@user/video/1234567890" style="flex:1;min-width:200px"><button class="btn sec" id="va">Video einbetten</button><button class="btn ghost" id="vc">Alle entfernen</button></div>
+ <div style="color:var(--mut);font-size:12.5px;margin-top:6px">TikTok bietet keine öffentliche Such-API für Embeds: Suche öffnet TikTok, du fügst die gefundenen Video-Links hier ein.</div>
+ <div class="tt" id="tt"></div></div>
+ <h3 style="margin:20px 0 10px">Produkt-Datenbank (Demo-Daten)</h3>
+ <div class="row" style="margin-bottom:12px"><input id="f" placeholder="Produkte filtern …" style="max-width:260px"></div>
+ <div class="grid g3" id="pg"></div>`;
+ $('#ts').onclick=()=>window.open('https://www.tiktok.com/search?q='+encodeURIComponent($('#q').value),'_blank');
+ $('#va').onclick=addVid;$('#vc').onclick=()=>{st.vids=[];save();embeds()};
+ $('#f').oninput=grid;embeds();grid();
+}
+async function addVid(){
+ const u=$('#vu').value.trim();const m=u.match(/tiktok\.com\/@[^/]+\/video\/(\d+)/);
+ if(!m)return toast('Bitte einen gültigen TikTok-Video-Link einfügen.');
+ let title='';try{const r=await fetch('https://www.tiktok.com/oembed?url='+encodeURIComponent(u));title=(await r.json()).title||''}catch(e){}
+ st.vids.push({u:u.split('?')[0],id:m[1],t:title});save();$('#vu').value='';embeds();
+}
+function embeds(){
+ const t=$('#tt');if(!t)return;
+ t.innerHTML=st.vids.length?st.vids.map(v=>`<div class="e"><blockquote class="tiktok-embed" cite="${esc(v.u)}" data-video-id="${v.id}" style="max-width:605px;min-width:300px"><section><a href="${esc(v.u)}" target="_blank">${esc(v.t||'Video auf TikTok ansehen')}</a></section></blockquote></div>`).join(''):'<div style="color:var(--mut)">Noch keine Videos. Füge oben einen Link hinzu.</div>';
+ if(st.vids.length){document.querySelectorAll('script[data-tt]').forEach(s=>s.remove());const s=document.createElement('script');s.src='https://www.tiktok.com/embed.js';s.async=true;s.dataset.tt=1;document.body.append(s)}
+}
+function pcard(p,inSaved){
+ const sc=score(p).total;
+ return `<div class="card pcard"><div class="pimg">${p.e}</div><div class="row sp"><b>${p.n}</b><span class="tag">${p.cat}</span></div>
+ <div class="row sp"><span>Einkauf ${eur(p.cost)}</span><span>Verkauf <b>${eur(p.price)}</b></span></div>
+ <div class="row sp" style="color:var(--mut)"><span>🎵 ${p.views} Views</span><span>🚚 ${p.ship} Tage</span></div>
+ <div class="row"><button class="btn sm" onclick="shop(${p.id})">Build Shopify Store</button>
+ ${inSaved?`<button class="btn sm ghost" onclick="unsave(${p.id})">Entfernen</button>`:`<button class="btn sm sec" onclick="addSave(${p.id})">${st.saved.includes(p.id)?'✓ Gespeichert':'Speichern'}</button>`}</div></div>`;
+}
+function grid(){const q=($('#f')?.value||'').toLowerCase();$('#pg').innerHTML=PRODUCTS.filter(p=>(p.n+p.cat).toLowerCase().includes(q)).map(p=>pcard(p)).join('')}
+function addSave(id){if(!st.saved.includes(id))st.saved.push(id);save();toast('Produkt gespeichert');if(st.page==='res')grid()}
+function unsave(id){st.saved=st.saved.filter(x=>x!==id);render()}
+
+/* Gespeichert */
+function saved(){
+ const sv=st.saved.map(id=>PRODUCTS.find(p=>p.id===id)).filter(Boolean);
+ $('#view').innerHTML=`<div class="top"><h2>Gespeicherte Produkte</h2><button class="btn sec" onclick="go('res')">Weitere finden</button></div>`+(sv.length?
+ `<div class="card" style="overflow:auto"><table><tr><th>Produkt</th><th>Einkauf</th><th>Empf. Verkaufspreis</th><th>Score</th><th></th></tr>${sv.map(p=>{const s=score(p).total;return`<tr><td>${p.e} <b>${p.n}</b></td><td>${eur(p.cost)}</td><td>${eur(sellP(p))}</td><td><b style="color:${col(s)}">${s}</b></td><td class="row"><button class="btn sm" onclick="shop(${p.id})">Build Shopify Store</button><button class="btn sm ghost" onclick="unsave(${p.id})">Entfernen</button></td></tr>`}).join('')}</table></div>`
+ :`<div class="card">Noch keine Produkte gespeichert. Starte in der <a href="#" onclick="go('res');return false" style="color:var(--pri)">Produktrecherche</a> und speichere dein erstes Produkt.</div>`);
+}
+
+/* Score-Modal */
+function shop(id){
+ const p=PRODUCTS.find(x=>x.id===id),r=score(p);st.gen.pid=id;
+ $('#modal').innerHTML=`<div class="card"><div class="row sp"><h3>Shopify Store für ${p.e} ${p.n}</h3><button class="btn sm ghost" id="mx">✕</button></div>
+ <div class="ring" style="background:conic-gradient(${col(r.total)} ${r.total*3.6}deg,var(--line) 0)"><div>${r.total}</div></div>
+ <div style="text-align:center;margin:8px 0 14px"><b style="color:${col(r.total)}">${r.label}</b><br><span style="color:var(--mut)">Product Score (0–100)</span></div>
+ ${r.f.map(x=>`<div style="margin-bottom:10px"><div class="row sp"><span>${x[0]} <span style="color:var(--mut);font-size:12px">· ${(x[2]*100)|0} %</span></span><b>${Math.round(x[1])}</b></div><div class="meter"><i style="width:${x[1]}%;background:${col(x[1])}"></i></div><div style="font-size:12px;color:var(--mut)">${x[3]}</div></div>`).join('')}
+ <div class="row" style="margin-top:14px"><button class="btn" id="mg">Website generieren</button><button class="btn sec" id="ms">Speichern</button></div></div>`;
+ $('#modal').classList.remove('hide');
+ $('#mx').onclick=()=>$('#modal').classList.add('hide');
+ $('#ms').onclick=()=>addSave(id);
+ $('#mg').onclick=()=>{$('#modal').classList.add('hide');go('gen')};
+}
+
+/* Generator */
+function gen(){
+ $('#view').innerHTML=`<div class="top"><h2>Website-Generator</h2></div>
+ <div class="grid g2"><div class="card"><h3>Einstellungen</h3>
+ <label for="gp">Produkt</label><select id="gp">${PRODUCTS.map(p=>`<option value="${p.id}" ${p.id===st.gen.pid?'selected':''}>${p.e} ${p.n}</option>`).join('')}</select>
+ <label for="gs">Stil</label><select id="gs"><option>Modern & minimalistisch</option><option>Bunt & verspielt</option><option>Luxuriös & dunkel</option><option>TikTok-Hype</option></select>
+ <label for="gl">Sprache</label><select id="gl"><option>Deutsch</option><option>Englisch</option></select>
+ <label for="gx">Zusatzwünsche (optional)</label><textarea id="gx" rows="3" placeholder="z. B. Geld-zurück-Garantie, Countdown, Bewertungen"></textarea>
+ <div class="row" style="margin-top:14px"><button class="btn" id="gb">Mit KI generieren</button></div>
+ <div style="color:var(--mut);font-size:12.5px;margin-top:8px">KI-Anbieter: <b>${st.set.ai==='pollinations'?'Pollinations.AI (öffentlich, ohne Key)':'Eigener OpenAI-kompatibler Endpoint'}</b>. Ändern unter Einstellungen → KI & API. Fällt die API aus, nutzt die App eine Offline-Vorlage.</div></div>
+ <div class="card"><h3>Ergebnis</h3><div id="gr" style="color:var(--mut)">Noch nichts generiert.</div></div></div>`;
+ $('#gb').onclick=makeSite;
+}
+async function makeSite(){
+ const p=PRODUCTS.find(x=>x.id==$('#gp').value),style=$('#gs').value,lang=$('#gl').value,ex=$('#gx').value;
+ const btn=$('#gb');btn.disabled=true;btn.textContent='Generiere …';
+ const prompt=`Erstelle eine vollständige, einseitige Shop-Landingpage als EINE HTML-Datei (inline CSS, kein JavaScript-Framework, keine externen Ressourcen). Produkt: ${p.n} (Kategorie ${p.cat}), Preis ${eur(sellP(p))}, Shopname: ${st.set.store||'MeinShop'}. Stil: ${style}. Sprache: ${lang}. Abschnitte: Hero mit CTA, Vorteile, Bewertungen, FAQ, Footer. ${ex?'Zusatz: '+ex:''} Verwende Emoji statt Bildern. Antworte NUR mit dem HTML-Code ohne Erklärung.`;
+ let html='',src='KI';
+ try{
+  const cfg=st.set,custom=cfg.ai==='custom'&&cfg.aiUrl;
+  const url=custom?cfg.aiUrl:'https://text.pollinations.ai/openai';
+  const h={'Content-Type':'application/json'};if(custom&&cfg.aiKey)h.Authorization='Bearer '+cfg.aiKey;
+  const r=await fetch(url,{method:'POST',headers:h,body:JSON.stringify({model:custom?(cfg.aiModel||'gpt-4o-mini'):'openai',messages:[{role:'user',content:prompt}]})});
+  const j=await r.json();html=j.choices[0].message.content;
+  html=html.replace(/^[\s\S]*?```(?:html)?\s*/i,m=>m.includes('```')?'':m).replace(/```[\s\S]*$/,'').trim();
+  if(!/<html|<!doctype/i.test(html))throw 0;
+ }catch(e){html=template(p,style);src='Offline-Vorlage'}
+ st.gen.html=html;S('ade_shops',L('ade_shops',0)+1);
+ $('#gr').innerHTML=`<div class="row sp" style="margin-bottom:8px"><span class="tag">Quelle: ${src}</span><span class="row"><button class="btn sm" id="gd">index.html herunterladen</button><button class="btn sm sec" id="gc">Code kopieren</button></span></div><iframe sandbox title="Vorschau"></iframe>`;
+ $('#gr iframe').srcdoc=html;
+ $('#gd').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([html],{type:'text/html'}));a.download='shop.html';a.click()};
+ $('#gc').onclick=()=>navigator.clipboard.writeText(html).then(()=>toast('Code kopiert'));
+ btn.disabled=false;btn.textContent='Mit KI generieren';
+}
+function template(p,style){
+ const dark=/dunkel/i.test(style),bg=dark?'#111':'#fff',fg=dark?'#f3f3f3':'#1b2438',ac=/bunt/i.test(style)?'#ff4d8d':'#2b5cff';
+ return `<!DOCTYPE html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(p.n)}</title><style>body{margin:0;font-family:system-ui,sans-serif;background:${bg};color:${fg}}section{max-width:880px;margin:auto;padding:48px 20px;text-align:center}.h{font-size:90px}h1{font-size:40px;margin:8px 0}a.b{display:inline-block;background:${ac};color:#fff;padding:14px 28px;border-radius:30px;text-decoration:none;font-weight:700}.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}.g div{border:1px solid #8884;border-radius:14px;padding:18px}footer{opacity:.6;padding:30px;text-align:center}</style></head><body>
+<section><div class="h">${p.e}</div><h1>${esc(p.n)}</h1><p>Bekannt aus TikTok – jetzt für nur <b>${eur(sellP(p))}</b>.</p><a class="b" href="#">Jetzt bestellen</a></section>
+<section><h2>Deine Vorteile</h2><div class="g"><div>⚡ Sofort einsatzbereit</div><div>🚚 Schneller Versand</div><div>💯 30 Tage Rückgabe</div></div></section>
+<section><h2>Kundenstimmen</h2><div class="g"><div>„Habe es wegen TikTok gekauft – top!“<br>★★★★★</div><div>„Besser als erwartet.“<br>★★★★★</div></div></section>
+<section><h2>FAQ</h2><p><b>Wie lange dauert der Versand?</b><br>Ca. ${p.ship} Tage.</p></section><footer>© ${esc(st.set.store||'MeinShop')}</footer></body></html>`;
+}
+
+/* Einstellungen */
+function set(){
+ const T=['Profil','Shop-Verbindung','Preisregeln','KI & API','Benachrichtigungen','Abo & Rechnung'],c=st.set;
+ const sw=(k,t)=>`<div class="sw"><span>${t}</span><input type="checkbox" data-n="${k}" ${c.notif[k]?'checked':''}></div>`;
+ const body={
+ 'Profil':`<label>Name</label><input data-k="name" value="${esc(c.name)}"><label>E-Mail</label><input data-k="email" value="${esc(c.email)}"><label>Sprache</label><select data-k="lang"><option>Deutsch</option><option>Englisch</option></select>`,
+ 'Shop-Verbindung':`<label>Shop-Name</label><input data-k="store" value="${esc(c.store)}" placeholder="mein-shop.myshopify.com"><div class="sw"><span>Shopify</span><span class="tag">Demo: nicht verbunden</span></div><div class="sw"><span>WooCommerce</span><span class="tag">Bald verfügbar</span></div><div class="sw"><span>eBay</span><span class="tag">Bald verfügbar</span></div>`,
+ 'Preisregeln':`<label>Aufschlag auf Einkaufspreis (%)</label><input type="number" data-k="markup" value="${c.markup}"><label>Währung</label><select data-k="cur"><option>EUR</option><option>USD</option></select><div class="sw"><span>Auf x,90 runden</span><input type="checkbox" data-k="round" ${c.round?'checked':''}></div>`,
+ 'KI & API':`<label>Anbieter</label><select data-k="ai"><option value="pollinations" ${c.ai==='pollinations'?'selected':''}>Pollinations.AI (öffentlich, kein Key)</option><option value="custom" ${c.ai==='custom'?'selected':''}>Eigener OpenAI-kompatibler Endpoint</option></select><label>Endpoint-URL</label><input data-k="aiUrl" value="${esc(c.aiUrl)}" placeholder="https://api.openai.com/v1/chat/completions"><label>API-Key</label><input type="password" data-k="aiKey" value="${esc(c.aiKey)}"><label>Modell</label><input data-k="aiModel" value="${esc(c.aiModel)}" placeholder="gpt-4o-mini"><div style="color:var(--mut);font-size:12.5px;margin-top:8px">Der Key bleibt nur in deinem Browser (localStorage).</div>`,
+ 'Benachrichtigungen':sw('stock','Lagerbestand-Warnung')+sw('price','Preisänderungen des Lieferanten')+sw('trend','Wöchentlicher Trendbericht'),
+ 'Abo & Rechnung':`<div class="sw"><span>Aktueller Plan</span><b>Pro (Demo)</b></div><div class="sw"><span>Produktlimit</span><span>1.000</span></div><div class="sw"><span>Nächste Abbuchung</span><span>—</span></div><button class="btn ghost" style="margin-top:12px" onclick="localStorage.clear();location.reload()">Alle Demo-Daten zurücksetzen</button>`};
+ $('#view').innerHTML=`<div class="top"><h2>Einstellungen</h2></div><div class="card"><div class="tabs">${T.map(t=>`<button class="${t===st.tab?'on':''}" data-t="${t}">${t}</button>`).join('')}</div>${body[st.tab]}<button class="btn" id="sv" style="margin-top:16px">Änderungen speichern</button></div>`;
+ document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{st.tab=b.dataset.t;set()});
+ document.querySelectorAll('[data-k]').forEach(i=>{if(i.tagName==='SELECT'&&c[i.dataset.k])i.value=c[i.dataset.k]});
+ $('#sv').onclick=()=>{document.querySelectorAll('[data-k]').forEach(i=>{const k=i.dataset.k;c[k]=i.type==='checkbox'?i.checked:i.type==='number'?+i.value:i.value});document.querySelectorAll('[data-n]').forEach(i=>c.notif[i.dataset.n]=i.checked);save();toast('Einstellungen gespeichert')};
+}
+$('#modal').onclick=e=>{if(e.target.id==='modal')e.target.classList.add('hide')};
+if(L('ade_in',0))enter();
+</script>
+</body>
+</html>
